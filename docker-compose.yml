@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:alpine
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    networks:
+      - appnetwork
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=usuario
+      - POSTGRES_PASSWORD=password
+    restart: unless-stopped
+
+  api:
+    image: api:1.0.0
+    build:
+      context: ./stratplus
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    networks:
+      - appnetwork
+    environment:
+      - DB_DATABASE=db
+      - DB_HOST=postgres
+      - DB_PASSWORD=password
+      - DB_USER=usuario
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+networks:
+  appnetwork:
+    driver: bridge
